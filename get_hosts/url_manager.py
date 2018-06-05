@@ -1,3 +1,5 @@
+import re
+
 class UrlManager(object):
     def __init__(self):
         self.new_urls = set()
@@ -11,10 +13,14 @@ class UrlManager(object):
 
 
     def add_new_urls(self, urls):
-        if urls is None or len (urls) == 0:
+        if urls is None or len(urls) == 0:
             return
         for url in urls:
-            self.add_new_url(url)
+            xz_url = re.match('http://.*?.(cctv|cntv).com/.*?', str(url))
+            if str(xz_url) is not None:
+                self.add_new_url(url)
+            else:
+                continue
 
     #判断是否有新的url
     def has_new_url(self):
