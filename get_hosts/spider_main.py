@@ -9,9 +9,17 @@ import time
 import threading
 import ctypes
 import inspect
+import signal
+from scapy.all import *
+import win32api
+import win32con
+import os
+from multiprocessing import Process, Queue
 
 
 
+# def myHandler(signum, frame):
+#     print("thread begin to stop!")
 
 
 class SpiderMain(object):
@@ -43,7 +51,7 @@ class SpiderMain(object):
             self.urls.add_new_urls(new_urls)
             self.outputer.collect_data(new_data)
 
-            if count == 2:
+            if count == 5:
                 break
             count = count + 1
             time.sleep(5)
@@ -53,16 +61,28 @@ class SpiderMain(object):
         self.outputer.out_html()
 
 class del_packets(object):
-    def __init__(self):
+    def __init__(self, q):
+        pid = os.getpid()
+        print('child')
+        print(pid)
+        q.put(pid)
         self.capture = capture_packet.capture()
 
     def collect_packet(self):
         self.capture()
 
+# class del_packets(object):
+#     def __init__(self):
+#         self.capture = capture_packet
+#
+#     def collect_packet(self):
+#         self.capture.capture()
 
 class analysis():
     def __init__(self):
         self.del_capture = analysis_packet.del_packet()
+
+
     def del_capture(self):
         self.del_packet()
 
@@ -72,15 +92,22 @@ class MyThread(threading.Thread):
         self.name = name
         self.func = func
         self.args = args
+
+
     def run(self):
         print(self.name + "thread begin #########")
 
-        if self.name == "spider":
-            print(self.args)
-            SpiderMain(self.args).craw()
+        # if self.name == "spider":
+        #     print(self.args)
+        #     SpiderMain(self.args).craw()
+        #
+        # elif self.name == "capture":
+        #     del_packets()
+        print(self.args)
+        SpiderMain(self.args).craw()
 
-        elif self.name == "capture":
-            del_packets()
+
+
         print(self.name + "thread finish ##############")
 
 
@@ -99,24 +126,71 @@ def _async_raise(tid, exctype):
         raise SystemError("PyThreadState_SetAsyncExc failed")
 
 
-def stop_thread(thread):
+def stop_thread(thread): 
     _async_raise(thread.ident, SystemExit)
 
 
 
 if __name__ == "__main__":
-    root_url = "http://tv.cctv.com"
+    q = Queue()
+    fid = os.getpid()
+    print(fid)
+    root_url = "https://www.taobao.com/"
     thing1 = MyThread(SpiderMain, root_url, "spider")
-    thing2 = MyThread(del_packets, None, "capture")
+    # thing2 = MyThread(del_packets, None, "capture")
+    p = Process(target=del_packets, args=(q,))
+    p.start()
     thing1.start()
-    thing2.start()
-    thing1.join()
-    # thing2.join()
-    print(thing1.isAlive( ))
-    print(thing2.isAlive( ))
-    if thing1.isAlive() == False:
-        stop_thread(thing2)
+    while thing1.isAlive():
+        time.sleep(10)
 
+    print('#####')
+    pid = q.get()
+    print(pid)
+    # pid = os.fork()
+    # if pid == 0:
+    #     del_packets
+    # else:
+    #     thing1.start()
+    #     thing1.join()
+    #     os.kill(pid, signal.SIGINT)
+    #     analysis( )
+
+    os.kill(pid, signal.SIGINT)
+    time.sleep(2)
+    # pid = os.getpid(p)
+
+
+    # win32api.keybd_event(17,0,0,0)
+    # win32api.keybd_event(67,0,0,0)
+    # win32api.keybd_event(67, 0, win32con.KEYEVENTF_KEYUP, 0)
+    # win32api.keybd_event(17, 0, win32con.KEYEVENTF_KEYUP, 0)
+    # signal.signal(signal.SIGINT, myHandler)
+    # while 1:
+    #     if thing1.isAlive():
+    #         time.sleep(1)
+    #     else:
+    #         # signal.signal(signal.SIGINT, myHandler)
+    #         break
+
+     # while thing1.isAlive():
+     #     time.sleep(5)
+
+
+    # thing1.join()
+    # thing2.join()
+    # if thing1.isAlive():
+    #     time.sleep(3)
+    # else:
+    # os.kill(pid, signal.SIGINT)
+
+    print(thing1.isAlive())
+
+
+
+    #if thing1.isAlive() == False:
+    #wrpcap("http.pcap", thing2)
+    #    stop_thread(thing2)
     # obj_spider = SpiderMain()
     # obj_spider.start()
     #obj_spider = threading.Thread(target=SpiderMain(1, "Thread-spider"), )
@@ -134,11 +208,11 @@ if __name__ == "__main__":
     #     thing.start()
 
 
-
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     #obj_packet.join()
     #obj_spider.join()
     # start analysis packet
-    #analysis().del_capture()
+    analysis()
 
 
 
