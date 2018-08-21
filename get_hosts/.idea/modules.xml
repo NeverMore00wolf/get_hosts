@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/get_hosts.iml" filepath="$PROJECT_DIR$/.idea/get_hosts.iml" />
+      <module fileurl="file://$USER_HOME$/code/python/python3.6/.idea/python3.6.iml" filepath="$USER_HOME$/code/python/python3.6/.idea/python3.6.iml" />
     </modules>
   </component>
 </project>

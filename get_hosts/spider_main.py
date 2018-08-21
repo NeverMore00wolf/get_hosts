@@ -5,14 +5,15 @@ import html_parser
 import url_manager
 import capture_packet
 import analysis_packet
+import selenium_ergodic
 import time
 import threading
 import ctypes
 import inspect
 import signal
 from scapy.all import *
-import win32api
-import win32con
+#import win32api
+#import win32con
 import os
 from multiprocessing import Process, Queue
 
@@ -45,16 +46,17 @@ class SpiderMain(object):
             #html_cont = self.downloader.download(new_url)
             if self.downloader.download(new_url) is None:
                 continue
+                print("craw root url is none!!!!")
             else:
                 html_cont = self.downloader.download(new_url)
             new_urls, new_data = self.parser.parse(new_url, html_cont)
             self.urls.add_new_urls(new_urls)
             self.outputer.collect_data(new_data)
 
-            if count == 5:
+            if count == 1:
                 break
             count = count + 1
-            time.sleep(5)
+            time.sleep(3)
         # except:
         #     print('craw faild!!!!!!')
 
@@ -129,21 +131,23 @@ def _async_raise(tid, exctype):
 def stop_thread(thread): 
     _async_raise(thread.ident, SystemExit)
 
+#def selenium_ergodic():
 
 
 if __name__ == "__main__":
     q = Queue()
     fid = os.getpid()
     print(fid)
-    root_url = "https://www.taobao.com/"
+    root_url = "https://www.iqiyi.com"
     thing1 = MyThread(SpiderMain, root_url, "spider")
     # thing2 = MyThread(del_packets, None, "capture")
     p = Process(target=del_packets, args=(q,))
+    #抓包进程
     p.start()
     thing1.start()
+
     while thing1.isAlive():
         time.sleep(10)
-
     print('#####')
     pid = q.get()
     print(pid)
@@ -155,6 +159,9 @@ if __name__ == "__main__":
     #     thing1.join()
     #     os.kill(pid, signal.SIGINT)
     #     analysis( )
+    #selenium_ergodic.selenium_ergodic()
+
+    selenium_ergodic.selenium_ergodic()
 
     os.kill(pid, signal.SIGINT)
     time.sleep(2)
@@ -184,7 +191,7 @@ if __name__ == "__main__":
     # else:
     # os.kill(pid, signal.SIGINT)
 
-    print(thing1.isAlive())
+    #print(thing1.isAlive())
 
 
 

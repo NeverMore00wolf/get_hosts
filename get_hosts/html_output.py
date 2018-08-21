@@ -33,7 +33,7 @@ class HtmlOutputer(object):
         for x in sort_result:
             # fout.write('<tr>')
             fout.write(str(x))
-            fout.write('\n')
+            fout.write('\r\n')
             # fout.write('</tr>')
         # for v,k in sort_result.items():
         #    print('{v}:{k}'.format(v = v, k = k))

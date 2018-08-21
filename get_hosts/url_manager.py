@@ -16,7 +16,7 @@ class UrlManager(object):
         if urls is None or len(urls) == 0:
             return
         for url in urls:
-            xz_url = re.match('http://.*?.(cctv|cntv).com/.*?', str(url))
+            xz_url = re.match('http://.*?.com/.*?', str(url))
             if str(xz_url) is not None:
                 self.add_new_url(url)
             else:
